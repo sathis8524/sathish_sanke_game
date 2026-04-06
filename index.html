@@ -1,0 +1,747 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Pro Max</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#0ff;
+  font-family:Arial;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+h1{margin:10px;}
+
+canvas{
+  width:95vw;
+  height:95vw;
+  max-width:400px;
+  max-height:400px;
+  border:2px solid #0ff;
+  box-shadow:0 0 20px #0ff;
+}
+
+.controls{
+  display:flex;
+  gap:8px;
+  margin:10px;
+}
+
+button{
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:#111;
+  color:#0ff;
+}
+
+#info{
+  display:flex;
+  justify-content:space-between;
+  width:90%;
+  max-width:400px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚡ Snake Pro Max</h1>
+
+<div id="info">
+  <span id="score">Score:0</span>
+  <span id="levelText">Level:1</span>
+</div>
+
+<div class="controls">
+  <button onclick="toggleAI()">🤖 AI</button>
+  <button onclick="startGame()">▶ Start</button>
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+canvas.width=400;
+canvas.height=400;
+
+let snake,food,direction,targetDirection;
+let game,score,aiMode=false;
+let level=1;
+let speed=150;
+
+// 🔊 SOUND
+const eatSound=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+const overSound=new Audio("https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg");
+
+// INIT
+function init(){
+  snake=[{x:200,y:200}];
+  direction="RIGHT";
+  targetDirection="RIGHT";
+  food=random();
+  score=0;
+  clearInterval(game);
+}
+
+// RANDOM
+function random(){
+  return {
+    x:Math.floor(Math.random()*20)*20,
+    y:Math.floor(Math.random()*20)*20
+  };
+}
+
+// START
+function startGame(){
+  init();
+  speed = 180 - (level*20);
+  game=setInterval(draw,speed);
+}
+
+// 🧠 SMART AI (avoid death)
+function smartAI(){
+  let h=snake[0];
+
+  let moves=[
+    {dir:"RIGHT",x:h.x+20,y:h.y},
+    {dir:"LEFT",x:h.x-20,y:h.y},
+    {dir:"DOWN",x:h.x,y:h.y+20},
+    {dir:"UP",x:h.x,y:h.y-20},
+  ];
+
+  // filter safe moves
+  let safe=moves.filter(m=>
+    m.x>=0 && m.y>=0 && m.x<400 && m.y<400 &&
+    !snake.some(p=>p.x===m.x && p.y===m.y)
+  );
+
+  // go toward food
+  safe.sort((a,b)=>{
+    let da=Math.abs(a.x-food.x)+Math.abs(a.y-food.y);
+    let db=Math.abs(b.x-food.x)+Math.abs(b.y-food.y);
+    return da-db;
+  });
+
+  if(safe.length>0) targetDirection=safe[0].dir;
+}
+
+// TOGGLE AI
+function toggleAI(){
+  aiMode=!aiMode;
+}
+
+// DRAW
+function draw(){
+  if(aiMode) smartAI();
+  direction=targetDirection;
+
+  ctx.fillStyle="black";
+  ctx.fillRect(0,0,400,400);
+
+  ctx.fillStyle="#0ff";
+  snake.forEach(p=>ctx.fillRect(p.x,p.y,20,20));
+
+  ctx.fillStyle="red";
+  ctx.fillRect(food.x,food.y,20,20);
+
+  let x=snake[0].x;
+  let y=snake[0].y;
+
+  if(direction==="UP") y-=20;
+  if(direction==="DOWN") y+=20;
+  if(direction==="LEFT") x-=20;
+  if(direction==="RIGHT") x+=20;
+
+  // eat
+  if(x===food.x && y===food.y){
+    score++;
+    eatSound.play();
+    food=random();
+
+    // 🏆 LEVEL SYSTEM
+    if(score%5===0){
+      level++;
+      clearInterval(game);
+      speed -= 10;
+      game=setInterval(draw,speed);
+    }
+
+  } else snake.pop();
+
+  // collision
+  if(
+    x<0||y<0||x>=400||y>=400||
+    snake.some(p=>p.x===x && p.y===y)
+  ){
+    overSound.play();
+    clearInterval(game);
+    alert("Game Over! Score:"+score);
+  }
+
+  snake.unshift({x,y});
+
+  document.getElementById("score").innerText="Score:"+score;
+  document.getElementById("levelText").innerText="Level:"+level;
+}
+
+// 📱 TOUCH
+let sx,sy;
+
+canvas.addEventListener("touchstart",e=>{
+  sx=e.touches[0].clientX;
+  sy=e.touches[0].clientY;
+});
+
+canvas.addEventListener("touchend",e=>{
+  let dx=e.changedTouches[0].clientX-sx;
+  let dy=e.changedTouches[0].clientY-sy;
+
+  if(Math.abs(dx)>Math.abs(dy)){
+    targetDirection=dx>0?"RIGHT":"LEFT";
+  }else{
+    targetDirection=dy>0?"DOWN":"UP";
+  }
+});
+
+// keyboard
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowUp") targetDirection="UP";
+  if(e.key==="ArrowDown") targetDirection="DOWN";
+  if(e.key==="ArrowLeft") targetDirection="LEFT";
+  if(e.key==="ArrowRight") targetDirection="RIGHT";
+});
+</script>
+
+</body>
+</html> -->
+
+<!-- /********* 2 ***********/ -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Pro Max</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#0ff;
+  font-family:Arial;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+h1{margin:10px;}
+
+canvas{
+  width:95vw;
+  height:95vw;
+  max-width:400px;
+  max-height:400px;
+  border:2px solid #0ff;
+  box-shadow:0 0 20px #0ff;
+}
+
+.controls{
+  display:flex;
+  gap:8px;
+  margin:10px;
+}
+
+button{
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:#111;
+  color:#0ff;
+}
+
+#info{
+  display:flex;
+  justify-content:space-between;
+  width:90%;
+  max-width:400px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚡ Snake Pro Max</h1>
+
+<div id="info">
+  <span id="score">Score:0</span>
+  <span id="levelText">Level:1</span>
+</div>
+
+<div class="controls">
+  <button onclick="toggleAI()">🤖 AI</button>
+  <button onclick="startGame()">▶ Start</button>
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+canvas.width=400;
+canvas.height=400;
+
+let snake,food,direction,targetDirection;
+let game,score,aiMode=false;
+let level=1;
+let speed=150;
+
+// 🔊 SOUND
+const eatSound=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+const overSound=new Audio("https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg");
+
+// INIT
+function init(){
+  snake=[{x:200,y:200}];
+  direction="RIGHT";
+  targetDirection="RIGHT";
+  food=random();
+  score=0;
+  clearInterval(game);
+}
+
+// RANDOM
+function random(){
+  return {
+    x:Math.floor(Math.random()*20)*20,
+    y:Math.floor(Math.random()*20)*20
+  };
+}
+
+// START
+function startGame(){
+  init();
+  speed = 180 - (level*20);
+  game=setInterval(draw,speed);
+}
+
+// 🧠 SMART AI (avoid death)
+function smartAI(){
+  let h=snake[0];
+
+  let moves=[
+    {dir:"RIGHT",x:h.x+20,y:h.y},
+    {dir:"LEFT",x:h.x-20,y:h.y},
+    {dir:"DOWN",x:h.x,y:h.y+20},
+    {dir:"UP",x:h.x,y:h.y-20},
+  ];
+
+  // filter safe moves
+  let safe=moves.filter(m=>
+    m.x>=0 && m.y>=0 && m.x<400 && m.y<400 &&
+    !snake.some(p=>p.x===m.x && p.y===m.y)
+  );
+
+  // go toward food
+  safe.sort((a,b)=>{
+    let da=Math.abs(a.x-food.x)+Math.abs(a.y-food.y);
+    let db=Math.abs(b.x-food.x)+Math.abs(b.y-food.y);
+    return da-db;
+  });
+
+  if(safe.length>0) targetDirection=safe[0].dir;
+}
+
+// TOGGLE AI
+function toggleAI(){
+  aiMode=!aiMode;
+}
+
+// DRAW
+function draw(){
+  if(aiMode) smartAI();
+  direction=targetDirection;
+
+  ctx.fillStyle="black";
+  ctx.fillRect(0,0,400,400);
+
+  ctx.fillStyle="#0ff";
+  snake.forEach(p=>ctx.fillRect(p.x,p.y,20,20));
+
+  ctx.fillStyle="red";
+  ctx.fillRect(food.x,food.y,20,20);
+
+  let x=snake[0].x;
+  let y=snake[0].y;
+
+  if(direction==="UP") y-=20;
+  if(direction==="DOWN") y+=20;
+  if(direction==="LEFT") x-=20;
+  if(direction==="RIGHT") x+=20;
+
+  // eat
+  if(x===food.x && y===food.y){
+    score++;
+    eatSound.play();
+    food=random();
+
+    // 🏆 LEVEL SYSTEM
+    if(score%5===0){
+      level++;
+      clearInterval(game);
+      speed -= 10;
+      game=setInterval(draw,speed);
+    }
+
+  } else snake.pop();
+
+  // collision
+  if(
+    x<0||y<0||x>=400||y>=400||
+    snake.some(p=>p.x===x && p.y===y)
+  ){
+    overSound.play();
+    clearInterval(game);
+    alert("Game Over! Score:"+score);
+  }
+
+  snake.unshift({x,y});
+
+  document.getElementById("score").innerText="Score:"+score;
+  document.getElementById("levelText").innerText="Level:"+level;
+}
+
+// 📱 TOUCH
+let sx,sy;
+
+canvas.addEventListener("touchstart",e=>{
+  sx=e.touches[0].clientX;
+  sy=e.touches[0].clientY;
+});
+
+canvas.addEventListener("touchend",e=>{
+  let dx=e.changedTouches[0].clientX-sx;
+  let dy=e.changedTouches[0].clientY-sy;
+
+  if(Math.abs(dx)>Math.abs(dy)){
+    targetDirection=dx>0?"RIGHT":"LEFT";
+  }else{
+    targetDirection=dy>0?"DOWN":"UP";
+  }
+});
+
+// keyboard
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowUp") targetDirection="UP";
+  if(e.key==="ArrowDown") targetDirection="DOWN";
+  if(e.key==="ArrowLeft") targetDirection="LEFT";
+  if(e.key==="ArrowRight") targetDirection="RIGHT";
+});
+</script>
+
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Snake Pro Ultimate</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:#000;
+  color:#0ff;
+  font-family:Arial;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  overflow:hidden;
+}
+
+h1{margin:8px;font-size:18px;}
+
+#top{
+  display:flex;
+  justify-content:space-between;
+  width:90%;
+  max-width:400px;
+  font-size:14px;
+}
+
+.controls{
+  display:flex;
+  gap:6px;
+  margin:8px;
+}
+
+button,select{
+  padding:6px 10px;
+  border:none;
+  border-radius:10px;
+  background:#111;
+  color:#0ff;
+  box-shadow:0 0 10px #0ff;
+}
+
+canvas{
+  width:95vw;
+  height:95vw;
+  max-width:400px;
+  max-height:400px;
+  border:2px solid #0ff;
+  box-shadow:0 0 20px #0ff;
+  touch-action:none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚡ Snake Pro Ultimate</h1>
+
+<div id="top">
+  <span id="score">Score:0</span>
+  <span id="levelText">Level:1</span>
+  <span id="high">High:0</span>
+</div>
+
+<div class="controls">
+  <select id="difficulty">
+    <option value="160">Easy</option>
+    <option value="120">Medium</option>
+    <option value="80">Hard</option>
+  </select>
+
+  <button onclick="toggleAI()">🤖 AI</button>
+  <button onclick="startGame()">▶</button>
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+canvas.width=400;
+canvas.height=400;
+
+let snake,food,dir,targetDir,obstacles;
+let score,level=1,speed,game;
+let ai=false;
+
+// 🔊 SOUND
+const eat=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+const over=new Audio("https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg");
+
+// 💾 HIGH SCORE
+let high=localStorage.getItem("snakeHigh")||0;
+document.getElementById("high").innerText="High:"+high;
+
+// INIT
+function init(){
+  snake=[{x:200,y:200}];
+  dir="RIGHT";
+  targetDir="RIGHT";
+  food=random();
+  score=0;
+  level=1;
+
+  // obstacles
+  obstacles=[];
+  for(let i=0;i<5;i++) obstacles.push(random());
+
+  speed=parseInt(document.getElementById("difficulty").value);
+  clearInterval(game);
+}
+
+// RANDOM
+function random(){
+  return {
+    x:Math.floor(Math.random()*20)*20,
+    y:Math.floor(Math.random()*20)*20
+  };
+}
+
+// START
+function startGame(){
+  init();
+  game=setInterval(draw,speed);
+}
+
+// 🤖 SMART AI
+function smartAI(){
+  let h=snake[0];
+
+  let moves=[
+    {d:"RIGHT",x:h.x+20,y:h.y},
+    {d:"LEFT",x:h.x-20,y:h.y},
+    {d:"DOWN",x:h.x,y:h.y+20},
+    {d:"UP",x:h.x,y:h.y-20}
+  ];
+
+  let safe=moves.filter(m=>
+    m.x>=0&&m.y>=0&&m.x<400&&m.y<400 &&
+    !snake.some(p=>p.x===m.x&&p.y===m.y) &&
+    !obstacles.some(o=>o.x===m.x&&o.y===m.y)
+  );
+
+  safe.sort((a,b)=>{
+    let da=Math.abs(a.x-food.x)+Math.abs(a.y-food.y);
+    let db=Math.abs(b.x-food.x)+Math.abs(b.y-food.y);
+    return da-db;
+  });
+
+  if(safe.length>0) targetDir=safe[0].d;
+}
+
+// AI toggle
+function toggleAI(){
+  ai=!ai;
+}
+
+// 🎮 DRAW
+function draw(){
+  if(ai) smartAI();
+  dir=targetDir;
+
+  ctx.fillStyle="black";
+  ctx.fillRect(0,0,400,400);
+
+  // snake glow
+  ctx.shadowColor="#0ff";
+  ctx.shadowBlur=15;
+  ctx.fillStyle="#0ff";
+  snake.forEach(p=>ctx.fillRect(p.x,p.y,20,20));
+
+  ctx.shadowBlur=0;
+
+  // food
+  ctx.fillStyle="red";
+  ctx.fillRect(food.x,food.y,20,20);
+
+  // obstacles
+  ctx.fillStyle="yellow";
+  obstacles.forEach(o=>ctx.fillRect(o.x,o.y,20,20));
+
+  let x=snake[0].x;
+  let y=snake[0].y;
+
+  if(dir==="UP") y-=20;
+  if(dir==="DOWN") y+=20;
+  if(dir==="LEFT") x-=20;
+  if(dir==="RIGHT") x+=20;
+
+  if(x===food.x&&y===food.y){
+    score++;
+    eat.play();
+    food=random();
+
+    if(score%5===0){
+      level++;
+      speed-=10;
+      clearInterval(game);
+      game=setInterval(draw,speed);
+
+      // add obstacle
+      obstacles.push(random());
+    }
+
+  } else snake.pop();
+
+  // collision
+  if(
+    x<0||y<0||x>=400||y>=400||
+    snake.some(p=>p.x===x&&p.y===y)||
+    obstacles.some(o=>o.x===x&&o.y===y)
+  ){
+    over.play();
+    clearInterval(game);
+
+    if(score>high){
+      localStorage.setItem("snakeHigh",score);
+    }
+
+    alert("Game Over: "+score);
+  }
+
+  snake.unshift({x,y});
+
+  document.getElementById("score").innerText="Score:"+score;
+  document.getElementById("levelText").innerText="Level:"+level;
+}
+
+// 🖱️ FIXED MOUSE CONTROL
+canvas.addEventListener("mousemove",e=>{
+  if(ai) return;
+
+  const rect=canvas.getBoundingClientRect();
+  const mx=e.clientX-rect.left;
+  const my=e.clientY-rect.top;
+
+  const h=snake[0];
+  const dx=mx-h.x;
+  const dy=my-h.y;
+
+  if(Math.abs(dx)>Math.abs(dy)){
+    if(dx>0&&dir!=="LEFT") targetDir="RIGHT";
+    else if(dx<0&&dir!=="RIGHT") targetDir="LEFT";
+  }else{
+    if(dy>0&&dir!=="UP") targetDir="DOWN";
+    else if(dy<0&&dir!=="DOWN") targetDir="UP";
+  }
+});
+
+// 📱 TOUCH
+// 📱 NEW SMOOTH TOUCH CONTROL
+canvas.addEventListener("touchmove", e => {
+  if(ai) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+
+  const mx = touch.clientX - rect.left;
+  const my = touch.clientY - rect.top;
+
+  const head = snake[0];
+  const dx = mx - head.x;
+  const dy = my - head.y;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0 && dir !== "LEFT") targetDir = "RIGHT";
+    else if (dx < 0 && dir !== "RIGHT") targetDir = "LEFT";
+  } else {
+    if (dy > 0 && dir !== "UP") targetDir = "DOWN";
+    else if (dy < 0 && dir !== "DOWN") targetDir = "UP";
+  }
+
+  e.preventDefault(); // 🔥 smooth control
+}, { passive: false });
+
+// keyboard
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowUp") targetDir="UP";
+  if(e.key==="ArrowDown") targetDir="DOWN";
+  if(e.key==="ArrowLeft") targetDir="LEFT";
+  if(e.key==="ArrowRight") targetDir="RIGHT";
+});
+</script>
+
+</body>
+</html>
